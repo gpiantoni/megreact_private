@@ -1,4 +1,4 @@
-function megname(cfg, subj)
+function megname(info, opt, subj)
 %MEGNAME rename the filenames after seldata because the filename of
 % the recordings is not correct.
 %
@@ -14,8 +14,8 @@ tic_t = tic;
 
 %---------------------------%
 %-dir and files
-ddir = sprintf('%s%04d/%s/%s/', cfg.data, subj, cfg.mod, cfg.nick); % data dir
-post = ['_seldata_' mfilename '.mat'];
+ddir = sprintf('%s%04d/%s/%s/', info.data, subj, info.mod, info.nick); % data dir
+post = '_A.mat';
 %---------------------------%
 
 %-------------------------------------%
@@ -26,7 +26,7 @@ for j = 1:numel(tasks)
   
   %-----------------%
   %-load all files
-  allfile = dir([ddir 'megreact_' tasks{j} '*' cfg.endname '.mat']); % files matching a preprocessing
+  allfile = dir([ddir 'megreact_' tasks{j} '*_A.mat']); % files matching a preprocessing
   dataset = [];
   index_pre = [];
   
@@ -38,7 +38,7 @@ for j = 1:numel(tasks)
     delete([ddir allfile(i).name])
     
     for t = 1:numel(data.trial)
-      data.trial{t} = data.trial{t} * cfg.megscaling;
+      data.trial{t} = data.trial{t} * opt.megscaling;
     end
     %-----------------%
     
@@ -65,7 +65,7 @@ for j = 1:numel(tasks)
     
     %-----------------%
     %-rescale and save
-    dfile = sprintf('%s_%s_%04d_%s_%d%s-%s%s', cfg.proj, cfg.rec, subj, cfg.mod, dataset(i), tasks{j}, cond, post);
+    dfile = sprintf('%s_%s_%04d_%s_%d%s-%s%s', info.nick, info.rec, subj, info.mod, dataset(i), tasks{j}, cond, post);
     save([ddir dfile], 'data', 'event')
     %-----------------%
     
@@ -86,7 +86,7 @@ output = [output outtmp];
 
 %-----------------%
 fprintf(output)
-fid = fopen([cfg.log '.txt'], 'a');
+fid = fopen([info.log '.txt'], 'a');
 fwrite(fid, output);
 fclose(fid);
 %-----------------%
