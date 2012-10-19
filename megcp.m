@@ -1,12 +1,12 @@
-function megcp(cfg, subj)
+function megcp(info, opt, subj)
 %MEGNAME cp data that were cleaned with ICA in 2009 from recording folder
 %
-% CFG
+% OPT
 %   .ntrial.task: number of 10s epochs for the task (optional)
 %   .ntrial.sleep: number of 30s epochs for the sleep (optional)
 %   .newtrl: duration of the new trials
 %   .dataorig: 'manualICA' or 'gclean'
-%   if gclean, also cfg.sleepscore (to sort sleep scores)
+%   if gclean, also opt.sleepscore (to sort sleep scores)
 %
 %   .trial.MT.begin: beginning of the baseline period (5)
 %   .trial.MT.end: end of the baseline period (15)
@@ -21,16 +21,16 @@ output = sprintf('%s (%04d) began at %s on %s\n', ...
 tic_t = tic;
 %---------------------------%
 
-if ~isfield(cfg, 'ntrial'); cfg.ntrial = []; end
-if ~isfield(cfg.ntrial, 'task'); cfg.ntrial.task = []; end
-if ~isfield(cfg.ntrial, 'sleep'); cfg.ntrial.sleep = []; end
+if ~isfield(opt, 'ntrial'); opt.ntrial = []; end
+if ~isfield(opt.ntrial, 'task'); opt.ntrial.task = []; end
+if ~isfield(opt.ntrial, 'sleep'); opt.ntrial.sleep = []; end
 
 %---------------------------%
 %-dir and files
-rdir = sprintf('%s%04d/%s/%s/', cfg.recs, subj, cfg.mod, 'raw'); % data dir
-ddir = sprintf('%s%04d/%s/%s/', cfg.data, subj, cfg.mod, cfg.nick); % data dir
+rdir = sprintf('%s%04d/%s/%s/', info.recs, subj, info.mod, 'raw'); % data dir
+ddir = sprintf('%s%04d/%s/%s/', info.data, subj, info.mod, info.nick); % data dir
 
-if strcmp(cfg.dataorig, 'manualICA')
+if strcmp(opt.dataorig, 'manualICA')
   % if isdir(ddir); rmdir(ddir, 's'); end
   % mkdir(ddir)
 end
@@ -63,7 +63,7 @@ for i1 = 1:numel(cond)
     %-----------------%
     %-outputfile
     dfile = sprintf('%s_%s_%04d_%s_%s%s%s', ...
-      cfg.proj, cfg.rec, subj, cfg.mod, task{i2}, cond{i1}, cfg.endname);
+      info.nick, info.rec, subj, info.mod, task{i2}, cond{i1}, '_A_B_C');
     
     outtmp = sprintf('\n%s\n%s %s\n', mfilename, cond{i1}, task{i2});
     output = [output outtmp];
@@ -73,9 +73,9 @@ for i1 = 1:numel(cond)
     %-expected n of trials
     switch i1
       case 1
-        ntrial = cfg.ntrial.task;
+        ntrial = opt.ntrial.task;
       case {2 3}
-        ntrial = cfg.ntrial.sleep;
+        ntrial = opt.ntrial.sleep;
     end
     %-----------------%
     
@@ -84,7 +84,7 @@ for i1 = 1:numel(cond)
     data = [];
     for d = 1:numel(condcode{i1})
       
-      switch cfg.dataorig
+      switch opt.dataorig
         
         case 'manualICA'
           [dat filename] = loadmeg(rdir, condcode{i1}{d}, taskcode{i2});
@@ -100,7 +100,7 @@ for i1 = 1:numel(cond)
           %-----------------%
           
         case 'gclean'
-          cfg.subj = subj;
+          opt.subj = subj;
           [dat filename] = loadgclean(ddir, cond{i1}, task{i2}, cfg);
           
       end
@@ -159,16 +159,16 @@ for i1 = 1:numel(cond)
     
     %-----------------%
     %-resize data
-    tmpcfg = [];
-    tmpcfg.newtrl = cfg.newtrl;
-    data = resizedata(tmpcfg, data);
+    cfg = [];
+    cfg.newtrl = opt.newtrl;
+    data = resizedata(cfg, data);
     %-----------------%
     
     %-----------------%
     %-reconstruct time
     % data already contains time, but it's always shifted and not
     % meaningful, so reconstruct it
-    timetrl = 0:1/data.fsample:cfg.newtrl-1/data.fsample;
+    timetrl = 0:1/data.fsample:opt.newtrl-1/data.fsample;
     data.time = repmat({timetrl}, size(data.trial));
     %-----------------%
     
@@ -178,7 +178,7 @@ for i1 = 1:numel(cond)
     lendat2 = min(cellfun(@(x)size(x,2), data.trial));
     
     output = sprintf('%s    resized at% 3ds, now% 4d trials (length max% 5d, min% 5d)\n\n', ...
-      output, cfg.newtrl, numel(data.trial), lendat1, lendat2);
+      output, opt.newtrl, numel(data.trial), lendat1, lendat2);
     save([ddir dfile], 'data')
     %-----------------%
     
@@ -196,7 +196,7 @@ output = [output outtmp];
 
 %-----------------%
 fprintf(output)
-fid = fopen([cfg.log '.txt'], 'a');
+fid = fopen([info.log '.txt'], 'a');
 fwrite(fid, output);
 fclose(fid);
 %-----------------%
@@ -236,7 +236,7 @@ function [data output] = loadgclean(ddir, cond, task, cfg)
 datname = cond(1:strfind(cond, '-')-1);
 
 dname = sprintf('%s_%s_%04d_%s_*%s%s%s.mat', ...
-      cfg.proj, cfg.rec, cfg.subj, cfg.mod, task, datname, cfg.endname);
+      info.proj, info.rec, info.subj, info.mod, task, datname, '_A_B_C');
 allfiles = dir([ddir dname]);
 output = sprintf(' %s', allfiles.name);
 %-----------------%
@@ -296,7 +296,7 @@ if strcmp(datname, 'sleep')
   
   %-------%
   %-sort score if necessary
-  if cfg.sortscore
+  if opt.sortscore
     [~, iscore] = sort(data.trialinfo);
     data.trial = data.trial(iscore);
     data.trialinfo = data.trialinfo(iscore);
@@ -343,5 +343,3 @@ tmpcfg.trl = trl(goodtrl,:);
 data = ft_redefinetrial(tmpcfg, data);
 %-----------------%
 %-------------------------------------%
-
-

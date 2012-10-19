@@ -1,5 +1,15 @@
-function megreact_stat(cfg)
+function megreact_stat(info, opt)
 %MEGREACT_STAT does statistics on meg data
+%
+% INFO
+%
+% CFG.OPT
+%  .time: cell with strings of the conditions to compare {'pre-trial' 'sleep-N2'};
+%  .freq: two scalars for the average of the frequency to compare
+%  .fun = 'permfun_overlap';
+%  .cfg: options to pass to fun
+%    .threshold: 0.05
+%    .ttest: 'fasterttest' 'fasterttest2' 'meanr1' 'meanr2'
 
 %---------------------------%
 %-start log
@@ -13,11 +23,11 @@ tic_t = tic;
 task = {'MT-' 'FN-'};
 
 clear corrmat
-for t = 1:numel(cfg.megreact.comp.time)
+for t = 1:numel(opt.time)
   for i = 1:numel(task)
-    cond = [task{i} cfg.megreact.comp.time{t}];
-    load([cfg.dcon 'conn_' cond], 'conn')
-    ifreq = cellfun(@(x)x(1), conn.freq) == cfg.megreact.comp.freq(t);
+    cond = [task{i} opt.time{t}];
+    load([info.dcon 'conn_' cond], 'conn')
+    ifreq = cellfun(@(x)x(1), conn.freq) == opt.freq(t);
     corrmat(:,:,:,t,i) = squeeze(conn.mat(:,:,1,ifreq,:));
   end
 end
@@ -26,20 +36,20 @@ end
 %-------------------------------------%
 %-run subfunctions
 tmpcfg = [];
-switch cfg.megreact.fun
+switch opt.fun
   
   case 'permfun_overlap'
-    tmpcfg.threshold = cfg.megreact.cfg.threshold;
+    tmpcfg.threshold = opt.cfg.threshold;
     pair1 = sel_tstat(tmpcfg, corrmat(:,:,:,1,1), corrmat(:,:,:,1,2));
     
-    tmpcfg = cfg.megreact.cfg;
+    tmpcfg = opt.cfg;
     tmpcfg.pair1 = pair1;
     
   case 'permfun_sumcorrcoef';
 
 end
 
-tmpcfg.fun = cfg.megreact.fun;
+tmpcfg.fun = opt.fun;
 [pval perm] = permutationtest(tmpcfg, squeeze(corrmat(:,:,:,2,:)));
 
 outtmp = sprintf(['cond1:% 6.3f value% 6.3f (against mean% 6.3f)\n' ...
@@ -52,7 +62,7 @@ output = [output outtmp];
 
 %---------------------------%
 %-write csv
-fid = fopen([cfg.log filesep 'megresults.csv'], 'w');
+fid = fopen([info.log filesep 'megresults.csv'], 'w');
 fprintf(fid, '%6.3f,%6.3f,%6.3f,%6.3f,%6.3f,%6.3f', ...
   pval(1), pval(2), perm.cond1(1), perm.cond2(1), ...
   mean(perm.cond1), mean(perm.cond2));
@@ -69,7 +79,7 @@ output = [output outtmp];
 
 %-----------------%
 fprintf(output)
-fid = fopen([cfg.log '.txt'], 'a');
+fid = fopen([info.log '.txt'], 'a');
 fwrite(fid, output);
 fclose(fid);
 %-----------------%
