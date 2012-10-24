@@ -4,6 +4,8 @@ function megname(info, opt, subj)
 %
 % CFG
 %   .megscaling: scaling to move femto testa into a nicer number
+%   .keeppost: keep post-sleep task
+%   .keepsleep: keep sleep data
 
 %---------------------------%
 %-start log
@@ -17,6 +19,9 @@ tic_t = tic;
 ddir = sprintf('%s%04d/%s/%s/', info.data, subj, info.mod, info.nick); % data dir
 post = '_A.mat';
 %---------------------------%
+
+if ~isfield(opt, 'keeppost'); opt.keeppost = true; end
+if ~isfield(opt, 'keepsleep'); opt.keepsleep = true; end
 
 %-------------------------------------%
 %-rename each file: MT and FN
@@ -55,11 +60,18 @@ for j = 1:numel(tasks)
         
       else
         cond = 'post';
+        
+        if ~opt.keeppost
+          continue
+        end
       end
       
     else
       cond = 'sleep';
-      
+        if ~opt.keepsleep
+          continue
+        end
+     
     end
     %-----------------%
     
