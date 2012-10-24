@@ -2,9 +2,6 @@ function [trl event] = trialfun_megtask(cfg)
 %TRIALFUN_MEGTASK create event and the whole recording for MT and FN task of MEGREACT
 %
 
-toread = 11;
-withsleep = true; % read sleep as well
-
 %-----------------%
 %-read info
 hdr = ft_read_header(cfg.headerfile);
@@ -16,7 +13,7 @@ evt = ft_read_event(cfg.datafile);
 if numel(unique({evt.type})) == 1 ...
     || numel(find(strcmp({evt.type}, 'STIM'))) < 2 % subj 10 has one STIM in the first dataset
   
-  if withsleep
+  if cfg.withsleep
     [trl event] = trialfun_megsleep(cfg); % check if it's sleep maybe
     
   else
@@ -34,7 +31,7 @@ end
 i_stim = strcmp({evt.type}, 'STIM');
 
 stim = [evt(i_stim).sample]; % location of STIM
-timeinterval = -hdr.Fs * toread:hdr.Fs * toread; % time interval around STIM to read
+timeinterval = -hdr.Fs * cfg.timearound:hdr.Fs * cfg.timearound; % time interval around STIM to read
 
 smpl = repmat(timeinterval, numel(stim), 1) + repmat(stim', 1, numel(timeinterval)); % sample to read
 smpl = unique(smpl(:));
@@ -51,7 +48,7 @@ breaks = find(diff(smpl) > 1);
 smpl1 = [smpl(1); smpl(breaks+1)];
 smpl2 = [smpl(breaks); smpl(end)];
 
-trl = [smpl1 smpl2 ones(numel(smpl1),1) * hdr.Fs * toread];
+trl = [smpl1 smpl2 ones(numel(smpl1),1) * hdr.Fs * cfg.timearound];
 %-----------------%
 
 %-----------------%
