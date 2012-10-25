@@ -27,6 +27,9 @@ clear corrmat
 for t = 1:numel(opt.time)
   for i = 1:numel(task)
     cond = [task{i} opt.time{t}];
+    if strcmp(cond, 'FN-baseline')
+      cond = 'FN-trial';
+    end
     load([info.dcon 'conn_' cond], 'conn')
     ifreq = cellfun(@(x)x(1), conn.freq) == opt.freq(t);
     corrmat(:,:,:,t,i) = squeeze(conn.mat(:,:,1,ifreq,:));
