@@ -21,10 +21,10 @@ time2_off = zeros(numel(event),1);
 %-----------------%
 
 %-----------------%
-cond(1).name = 'time1';
+cond(1).name = 'baseline';
 cond(1).trl = [time1_beg time1_end time1_off];
 
-cond(2).name = 'time2';
+cond(2).name = 'execution';
 cond(2).trl = [time2_beg time2_end time2_off];
 %-----------------%
 

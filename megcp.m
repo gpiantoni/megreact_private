@@ -31,8 +31,8 @@ rdir = sprintf('%s%04d/%s/%s/', info.recs, subj, info.mod, 'raw'); % data dir
 ddir = sprintf('%s%04d/%s/%s/', info.data, subj, info.mod, info.nick); % data dir
 
 if strcmp(opt.dataorig, 'manualICA')
-  % if isdir(ddir); rmdir(ddir, 's'); end
-  % mkdir(ddir)
+%   if isdir(ddir); rmdir(ddir, 's'); end
+%   mkdir(ddir)
 end
 %---------------------------%
 
@@ -49,9 +49,7 @@ taskcode = {'_a' '_b'};
 %-------%
 %-data
 cond = {'pre-trial' 'sleep-WA' 'sleep-N2'};
-% cond = {'pre-time2'};
 task = {'MT-' 'FN-'};
-% task = {'MT-'};
 %-------%
 %-----------------%
 
