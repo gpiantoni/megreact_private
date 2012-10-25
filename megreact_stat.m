@@ -26,8 +26,8 @@ clear corrmat
 for t = 1:numel(opt.time)
   for i = 1:numel(task)
     cond = [task{i} opt.time{t}];
-    if strcmp(cond, 'FN-baseline')
-      cond = 'FN-trial';
+    if strcmp(cond, 'FN-pre-baseline')
+      cond = 'FN-pre-trial';
     end
     load([info.dcon 'conn_' cond], 'conn')
     ifreq = cellfun(@(x)x(1), conn.freq) == opt.freq(t);
