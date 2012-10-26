@@ -51,19 +51,47 @@ pair_05_12 = pair_05_1 + pair_05_2;
 %-------------------------------------%
 
 %-------------------------------------%
+%-plot task
+pair_1 = double(pair_01_1 == 1) + double(pair_05_1 == 1);
+h = plot_spaghetti(pair_1, layout, 1, 2);
+saveas(h, [info.log filesep 'spaghetti_' opt.time{1} '.png'])
+saveas(h, [info.log filesep 'spaghetti_' opt.time{1} '.pdf'])
+delete(h)
+%-------------------------------------%
+
+%-------------------------------------%
+%-plot sleep
+pair_2 = double(pair_01_2 == 1) + double(pair_05_2 == 1);
+h = plot_spaghetti(pair_2, layout, 1, 2);
+saveas(h, [info.log filesep 'spaghetti_' opt.time{2} '.png'])
+saveas(h, [info.log filesep 'spaghetti_' opt.time{2} '.pdf'])
+delete(h)
+%-------------------------------------%
+
+%-------------------------------------%
+%-plot task + sleep
+pair_12 = double(pair_01_12 == 2) + double(pair_05_12 == 2);
+h = plot_spaghetti(pair_12, layout, 1, 2);
+saveas(h, [info.log filesep 'spaghetti_' opt.time{1} '_' opt.time{2} '.png'])
+saveas(h, [info.log filesep 'spaghetti_' opt.time{1} '_' opt.time{2} '.pdf'])
+delete(h)
+%-------------------------------------%
+
+%-------------------------------------%
+function h = plot_spaghetti(pairplot, layout, plot1, plot2)
+
 h = figure;
 ft_plot_lay(layout, 'label', 0, 'box', 0, 'pointsymbol', '.', 'pointcolor', 'k', 'pointsize', 8)
 hold on
-for k1 = 1:size(pair_01_1,1)
-  for k2 = 1:size(pair_01_1,2)
-    if pair_01_12(k1,k2) == 2
+for k1 = 1:size(pairplot,1)
+  for k2 = 1:size(pairplot,2)
+    if pairplot(k1,k2) == plot1
       plot( [layout.pos(k1, 1) layout.pos(k2, 1)], [layout.pos(k1, 2) layout.pos(k2, 2)], 'b')
-    elseif pair_05_12(k1,k2) == 2
+    elseif pairplot(k1,k2) == plot2
       plot( [layout.pos(k1, 1) layout.pos(k2, 1)], [layout.pos(k1, 2) layout.pos(k2, 2)], 'r')
     end
   end
 end
-saveas(h, [info.log filesep 'spaghetti_' opt.time{1} '_' opt.time{2} '.png'])
-saveas(h, [info.log filesep 'spaghetti_' opt.time{1} '_' opt.time{2} '.pdf'])
-delete(h)
+
+
 %-------------------------------------%
