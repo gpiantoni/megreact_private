@@ -37,7 +37,7 @@ for t = 1:numel(opt.time)
       cond = 'FN-pre-trial';
     end
     load([info.dcon 'conn_' cond], 'conn')
-    ifreq = cellfun(@(x)x(1), conn.freq) == opt.freq(t);
+    ifreq = nearest(cellfun(@(x)x(1), conn.freq), opt.freq(t));
     corrmat(:,:,:,t,i) = squeeze(conn.mat(:,:,1,ifreq,:));
   end
 end
@@ -101,7 +101,8 @@ for ch = 1:numel(selchan)
       load([info.dcon dname]);
       for f = 1:numel(freq)
         stattmp = conn_s.powcorrspctrm(:,:,freq(f));
-        avgc(subj, f) = nanmean(nanmean(stattmp(selchan{ch})));
+        stattmp = stattmp(selchan{ch});
+        avgc(subj, f) = nanmean(stattmp(:));
       end
       %---------------------------%
       
