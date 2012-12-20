@@ -34,7 +34,7 @@ else
   %-----------------%
   %-stages
   stage(1).name = 'WA';
-  stage(1).marker = [0 1 2];
+  stage(1).marker = [0 1 2]; % this only means that you should recordings from 0, if not enough then 1, if not enough then 2
   stage(2).name = 'N2';
   stage(2).marker = [2 3 4];
   %-----------------%
