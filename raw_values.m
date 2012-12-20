@@ -73,9 +73,9 @@ for ch = 1:numel(selchan)
     %---------------------------%
     %-select frequency of interest
     if strfind(condname, 'pre')
-      freq = 4;
+      freq = [4];
     else
-      freq = [1 2 3];
+      freq = [1 2 3]; 
     end
     %---------------------------%
     
@@ -90,7 +90,15 @@ for ch = 1:numel(selchan)
         dname = sprintf('pow_%04d_%s.mat', info.subjall(subj), condname);
         load([info.dpow dname]);
         for f = 1:numel(freq)
-          avgp(subj, f) = nanmean(pow_s.powspctrm(:,freq(f)));
+          
+          %-------%
+          %-foi
+          foi = opt.powfoi(freq(f),:);
+          foi1 = nearest(pow_s.freq, foi(1));
+          foi2 = nearest(pow_s.freq, foi(2));
+          %-------%
+          
+          avgp(subj, f) = nanmean(nanmean(pow_s.powspctrm(:,foi1:foi2),2));
         end
       end
       %---------------------------%
